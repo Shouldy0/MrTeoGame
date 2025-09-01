@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>MrTeo — Card Game</title>
+  <meta name="description" content="Colleziona, sfida e crea carte di MrTeo. Catalogo, generatore ed export PNG." />
+  <link rel="preload" href="css/styles.css" as="style">
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="icon" href="data:,">
+</head>
+<body>
+  <header class="nav">
+    <div class="brand">🧣 MrTeo — Card Game</div>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#catalog">Catalogo</a>
+      <a href="#generator">Generatore</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <div class="hero">
+        <h1>MrTeo — Sguardo al Sole</h1>
+        <p>Un mondo di carte illustrato con stile minimale. Colleziona, sfida su Telegram e crea nuove varianti direttamente dal browser.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="#catalog">Sfoglia le carte</a>
+          <a class="btn" href="#generator">Crea una carta</a>
+          <a class="btn ghost" target="_blank" href="https://t.me/TUO_BOT_LINK">Gioca su Telegram</a>
+        </div>
+      </div>
+      <div class="grid preview" id="homePreview"></div>
+    </section>
+
+    <!-- CATALOGO -->
+    <section id="catalog" class="page">
+      <h2>Catalogo</h2>
+      <div class="filters">
+        <input id="q" placeholder="Cerca nome o id…" />
+        <select id="fRarity">
+          <option value="">Tutte le rarità</option>
+          <option>COMMON</option><option>RARE</option><option>EPIC</option><option>LEGENDARY</option>
+        </select>
+        <select id="fElement">
+          <option value="">Tutti gli elementi</option>
+          <option value="earth">Terra</option>
+          <option value="fire">Fuoco</option>
+          <option value="water">Acqua</option>
+        </select>
+      </div>
+      <div class="grid" id="catalogGrid"></div>
+      <div id="emptyState" class="muted" hidden>Nessun risultato.</div>
+    </section>
+
+    <!-- GENERATORE -->
+    <section id="generator" class="page">
+      <h2>Generatore carta</h2>
+      <div class="toolbar">
+        <input id="gName" value="MrTeo — Sguardo al Sole" />
+        <select id="gRarity">
+          <option>COMMON</option><option selected>RARE</option><option>EPIC</option><option>LEGENDARY</option>
+        </select>
+        <select id="gElement">
+          <option value="earth" selected>Terra</option>
+          <option value="fire">Fuoco</option>
+          <option value="water">Acqua</option>
+        </select>
+        <input id="gPower" type="number" value="6" min="1" max="15" />
+        <input id="gImg" placeholder="URL immagine" />
+      </div>
+      <textarea id="gFlavor">Tendo a rimirare il vasto sole, non importa se mi acceco.</textarea>
+      <div class="card-wrap">
+        <!-- layout carta (stile coerente con il tuo gioco) -->
+        <div id="card" class="card rar-RARE" aria-label="card-root">
+          <div class="card-in">
+            <div class="head">
+              <div id="tName" class="title">MrTeo — Sguardo al Sole</div>
+              <div id="tRarity" class="badge">RARE</div>
+            </div>
+            <div class="art">
+              <div class="sun"></div>
+              <img id="tImg" alt="artwork">
+            </div>
+            <div id="tEl" class="el">🪨</div>
+            <div class="foot">
+              <div id="tFlavor" class="flavor">Tendo a rimirare il vasto sole, non importa se mi acceco.</div>
+              <div id="tPower" class="power">6</div>
+            </div>
+          </div>
+        </div>
+        <div class="side">
+          <button id="btnExport" class="btn primary">Esporta PNG</button>
+          <p class="muted">Suggerimento: incolla l’URL della tua immagine (CDN/Drive pubblico). Il PNG viene salvato in 750×1050.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Viewer Modal -->
+  <dialog id="viewer" class="viewer">
+    <button class="x" onclick="viewer.close()">✕</button>
+    <img id="vImg" alt="card" />
+    <div class="meta">
+      <div id="vTitle"></div>
+      <div id="vBadges"></div>
+      <div id="vFlavor" class="muted"></div>
+      <div class="row">
+        <a id="vDownload" class="btn">Scarica</a>
+        <a id="vPlay" class="btn ghost" target="_blank" href="https://t.me/TUO_BOT_LINK">Gioca su Telegram</a>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="footnote">
+    © Creatore di mondi — MrTeo. Sito statico. Pronto per GitHub Pages/Netlify.
+  </footer>
+
+  <script src="js/html2canvas.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
