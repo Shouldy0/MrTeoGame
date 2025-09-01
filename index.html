@@ -4,18 +4,80 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>MrTeo — Card Game</title>
-  <meta name="description" content="Colleziona, sfida e crea carte di MrTeo. Catalogo, generatore ed export PNG." />
-  <link rel="preload" href="css/styles.css" as="style">
-  <link rel="stylesheet" href="css/styles.css">
-  <link rel="icon" href="data:,">
+  <style>
+    :root{
+      --bg:#0d0f13; --card:#1b1f27; --ink:#e9eef5; --muted:#aab3c2;
+      --brand:#ff9a3c; --brand2:#ffce73;
+      --radius:18px; --shadow:0 24px 60px rgba(0,0,0,.35);
+      --w:750px; --h:1050px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+    a{color:var(--brand)}
+    .nav{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;position:sticky;top:0;background:#0f131a;border-bottom:1px solid #1e2430;z-index:5}
+    .nav .brand{font-weight:900}
+    .nav a{color:#cfe; text-decoration:none;margin-left:14px}
+    main{max-width:1200px;margin:0 auto;padding:20px}
+    .page{display:none}
+    .page.active{display:block}
+    .hero{background:linear-gradient(135deg,#151b25,#0f141d);padding:28px;border-radius:16px;box-shadow:var(--shadow)}
+    .cta-row{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap}
+    .btn{background:#1f2633;border:1px solid #2d3442;border-radius:12px;padding:10px 14px;color:#e7edf6;text-decoration:none;display:inline-block}
+    .btn.primary{background:linear-gradient(135deg,#ff9a3c,#ffce73);color:#111;border:none}
+    .btn.ghost{background:transparent;border:1px dashed #394255}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;margin-top:16px}
+    .card-mini{aspect-ratio:3/4;background:#141923;border-radius:16px;cursor:pointer}
+    .filters{display:flex;gap:10px;flex-wrap:wrap}
+    .filters input,.filters select,.toolbar input,.toolbar select,.toolbar textarea{background:#121720;border:1px solid #263041;border-radius:12px;color:#e8eef6;padding:10px 12px;min-width:170px}
+    .toolbar textarea{min-width:320px;min-height:70px}
+    .card-wrap{display:grid;grid-template-columns:1fr 300px;gap:20px;align-items:start;margin-top:16px}
+    .card{width:var(--w);height:var(--h);background:linear-gradient(180deg,#6a2bbf,#421d7a);border-radius:calc(var(--radius) + 10px);padding:10px;box-shadow:var(--shadow)}
+    .card-in{background:var(--card);border-radius:var(--radius);height:100%;padding:18px;display:flex;flex-direction:column;gap:12px}
+    .head{background:#e9decf;color:#222;border-radius:14px;padding:12px 16px;display:flex;justify-content:space-between;align-items:center}
+    .title{font-weight:900;color:#111}
+    .badge{background:#b08cff;color:#111;padding:6px 12px;border-radius:12px;font-weight:900}
+    .art{flex:1;border-radius:18px;position:relative;display:grid;place-items:center;background:#c6dbe6;overflow:hidden;border:2px solid rgba(0,0,0,.18)}
+    .sun{position:absolute;width:70%;aspect-ratio:1;border-radius:50%;background:radial-gradient(closest-side,rgba(255,185,90,.95),rgba(255,185,90,.35) 60%,rgba(255,185,90,0) 75%);mix-blend-mode:screen}
+    .art img{max-width:92%;max-height:92%;object-fit:contain}
+    .el{position:absolute;left:22px;bottom:190px;width:86px;height:86px;border-radius:50%;display:grid;place-items:center;background:#2b2f38;border:2px solid rgba(255,255,255,.06);font-size:36px}
+    .foot{display:grid;grid-template-columns:1fr 90px;gap:12px}
+    .flavor,.power{background:#e9decf;color:#111;border-radius:14px;padding:14px;border:2px solid rgba(0,0,0,.15)}
+    .power{display:grid;place-items:center;font-weight:900;font-size:44px}
+    .viewer{width:min(1100px,95vw);background:#10151d;color:#eaf2ff;border:none;border-radius:16px;padding:12px}
+    .viewer img{width:100%;border-radius:12px;background:#0f141c}
+    .viewer .x{position:absolute;right:12px;top:12px;background:#1b2230;border:none;border-radius:10px;color:#cfe;padding:6px 10px;cursor:pointer}
+    .viewer .meta{display:grid;gap:8px;padding:8px}
+    .row{display:flex;gap:10px}
+    .muted{color:var(--muted)}
+    .footnote{opacity:.6;text-align:center;padding:30px}
+    
+    /* Rarity themes */
+    .rar-COMMON{--frame:#575757;--frame2:#2f2f2f;--accent:#8b8b8b}
+    .rar-RARE{--frame:#6a2bbf;--frame2:#421d7a;--accent:#b08cff}
+    .rar-EPIC{--frame:#1460ff;--frame2:#0f3cb3;--accent:#78a7ff}
+    .rar-LEGENDARY{--frame:#c79a24;--frame2:#7b5e0f;--accent:#ffd46a}
+    
+    .rar-COMMON .card{background:linear-gradient(180deg,var(--frame),var(--frame2))}
+    .rar-COMMON .badge{background:var(--accent)}
+    .rar-RARE .card{background:linear-gradient(180deg,var(--frame),var(--frame2))}
+    .rar-RARE .badge{background:var(--accent)}
+    .rar-EPIC .card{background:linear-gradient(180deg,var(--frame),var(--frame2))}
+    .rar-EPIC .badge{background:var(--accent)}
+    .rar-EPIC .art{background:#2b1f4b}
+    .rar-EPIC .sun{background:radial-gradient(closest-side,rgba(255,102,76,.98),rgba(255,102,76,.38) 60%,rgba(255,102,76,0) 75%)}
+    .rar-LEGENDARY .card{background:linear-gradient(180deg,var(--frame),var(--frame2))}
+    .rar-LEGENDARY .badge{background:var(--accent)}
+    .rar-LEGENDARY .art{background:#2b250e}
+    .rar-LEGENDARY .sun{background:radial-gradient(closest-side,rgba(255,214,94,.98),rgba(255,214,94,.42) 60%,rgba(255,214,94,0) 75%)}
+  </style>
 </head>
 <body>
   <header class="nav">
     <div class="brand">🧣 MrTeo — Card Game</div>
     <nav>
-      <a href="#home">Home</a>
-      <a href="#catalog">Catalogo</a>
-      <a href="#generator">Generatore</a>
+      <a href="#home" class="navlink">Home</a>
+      <a href="#catalog" class="navlink">Catalogo</a>
+      <a href="#generator" class="navlink">Generatore</a>
     </nav>
   </header>
 
@@ -24,31 +86,22 @@
     <section id="home" class="page active">
       <div class="hero">
         <h1>MrTeo — Sguardo al Sole</h1>
-        <p>Un mondo di carte illustrato con stile minimale. Colleziona, sfida su Telegram e crea nuove varianti direttamente dal browser.</p>
+        <p>Colleziona, sfida su Telegram e genera carte personalizzate.</p>
         <div class="cta-row">
-          <a class="btn primary" href="#catalog">Sfoglia le carte</a>
-          <a class="btn" href="#generator">Crea una carta</a>
-          <a class="btn ghost" target="_blank" href="https://t.me/TUO_BOT_LINK">Gioca su Telegram</a>
+          <a class="btn primary" href="#catalog">Sfoglia carte</a>
+          <a class="btn" href="#generator">Crea carta</a>
         </div>
       </div>
-      <div class="grid preview" id="homePreview"></div>
+      <div class="grid" id="homePreview"></div>
     </section>
 
     <!-- CATALOGO -->
     <section id="catalog" class="page">
       <h2>Catalogo</h2>
       <div class="filters">
-        <input id="q" placeholder="Cerca nome o id…" />
-        <select id="fRarity">
-          <option value="">Tutte le rarità</option>
-          <option>COMMON</option><option>RARE</option><option>EPIC</option><option>LEGENDARY</option>
-        </select>
-        <select id="fElement">
-          <option value="">Tutti gli elementi</option>
-          <option value="earth">Terra</option>
-          <option value="fire">Fuoco</option>
-          <option value="water">Acqua</option>
-        </select>
+        <input id="q" placeholder="Cerca…" />
+        <select id="fRarity"><option value="">Tutte</option><option>COMMON</option><option>RARE</option><option>EPIC</option><option>LEGENDARY</option></select>
+        <select id="fElement"><option value="">Tutti</option><option value="earth">Terra</option><option value="fire">Fuoco</option><option value="water">Acqua</option></select>
       </div>
       <div class="grid" id="catalogGrid"></div>
       <div id="emptyState" class="muted" hidden>Nessun risultato.</div>
@@ -59,65 +112,213 @@
       <h2>Generatore carta</h2>
       <div class="toolbar">
         <input id="gName" value="MrTeo — Sguardo al Sole" />
-        <select id="gRarity">
-          <option>COMMON</option><option selected>RARE</option><option>EPIC</option><option>LEGENDARY</option>
-        </select>
-        <select id="gElement">
-          <option value="earth" selected>Terra</option>
-          <option value="fire">Fuoco</option>
-          <option value="water">Acqua</option>
-        </select>
+        <select id="gRarity"><option>COMMON</option><option selected>RARE</option><option>EPIC</option><option>LEGENDARY</option></select>
+        <select id="gElement"><option value="earth" selected>Terra</option><option value="fire">Fuoco</option><option value="water">Acqua</option></select>
         <input id="gPower" type="number" value="6" min="1" max="15" />
         <input id="gImg" placeholder="URL immagine" />
       </div>
       <textarea id="gFlavor">Tendo a rimirare il vasto sole, non importa se mi acceco.</textarea>
       <div class="card-wrap">
-        <!-- layout carta (stile coerente con il tuo gioco) -->
-        <div id="card" class="card rar-RARE" aria-label="card-root">
+        <div id="card" class="card rar-RARE">
           <div class="card-in">
-            <div class="head">
-              <div id="tName" class="title">MrTeo — Sguardo al Sole</div>
-              <div id="tRarity" class="badge">RARE</div>
-            </div>
-            <div class="art">
-              <div class="sun"></div>
-              <img id="tImg" alt="artwork">
-            </div>
+            <div class="head"><div id="tName" class="title">MrTeo — Sguardo al Sole</div><div id="tRarity" class="badge">RARE</div></div>
+            <div class="art"><div class="sun"></div><img id="tImg" alt="Card image" /></div>
             <div id="tEl" class="el">🪨</div>
-            <div class="foot">
-              <div id="tFlavor" class="flavor">Tendo a rimirare il vasto sole, non importa se mi acceco.</div>
-              <div id="tPower" class="power">6</div>
-            </div>
+            <div class="foot"><div id="tFlavor" class="flavor">Tendo a rimirare il vasto sole, non importa se mi acceco.</div><div id="tPower" class="power">6</div></div>
           </div>
         </div>
-        <div class="side">
-          <button id="btnExport" class="btn primary">Esporta PNG</button>
-          <p class="muted">Suggerimento: incolla l’URL della tua immagine (CDN/Drive pubblico). Il PNG viene salvato in 750×1050.</p>
-        </div>
+        <div class="side"><button id="btnExport" class="btn primary">Esporta PNG</button></div>
       </div>
     </section>
   </main>
 
-  <!-- Viewer Modal -->
-  <dialog id="viewer" class="viewer">
-    <button class="x" onclick="viewer.close()">✕</button>
-    <img id="vImg" alt="card" />
-    <div class="meta">
-      <div id="vTitle"></div>
-      <div id="vBadges"></div>
-      <div id="vFlavor" class="muted"></div>
-      <div class="row">
-        <a id="vDownload" class="btn">Scarica</a>
-        <a id="vPlay" class="btn ghost" target="_blank" href="https://t.me/TUO_BOT_LINK">Gioca su Telegram</a>
-      </div>
-    </div>
-  </dialog>
+  <dialog id="viewer" class="viewer"><button class="x" onclick="viewer.close()">✕</button><img id="vImg" alt="Card image"/><div id="vTitle"></div></dialog>
 
-  <footer class="footnote">
-    © Creatore di mondi — MrTeo. Sito statico. Pronto per GitHub Pages/Netlify.
-  </footer>
+  <footer class="footnote">© Creatore di mondi — MrTeo</footer>
 
-  <script src="js/html2canvas.min.js"></script>
-  <script src="js/app.js"></script>
+  <!-- html2canvas -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+  <script>
+  // Card data
+  const cards = [
+    {
+      "id": "mrteo-wanderer-001",
+      "name": "MrTeo",
+      "emoji": "🧣",
+      "element": "earth",
+      "basePower": 6,
+      "rarity": "RARE",
+      "flavor": "Viaggiatore con sciarpa rosa",
+      "artist": "Creatore di mondi",
+      "set": "Core Set 1",
+      "imageUrl": "https://drive.google.com/uc?id=1y2ZTvOGs5DtyVJwU3pTlu3a5p8A4up4Q"
+    },
+    {
+      "id": "mrteo-guardian-002",
+      "name": "MrTeo Guardiano",
+      "emoji": "🛡️",
+      "element": "earth",
+      "basePower": 8,
+      "rarity": "EPIC",
+      "artist": "Creatore di mondi",
+      "set": "Core Set 1",
+      "imageUrl": "https://drive.google.com/uc?id=1y2ZTvOGs5DtyVJwU3pTlu3a5p8A4up4Q"
+    },
+    {
+      "id": "mrteo-sguardo-sole-common",
+      "name": "MrTeo — Sguardo al Sole",
+      "emoji": "🧣",
+      "element": "earth",
+      "basePower": 4,
+      "rarity": "COMMON",
+      "flavor": "Tendo a rimirare il vasto sole, non importa se mi acceco.",
+      "imageUrl": "https://drive.google.com/uc?id=1y2ZTvOGs5DtyVJwU3pTlu3a5p8A4up4Q",
+      "artist": "Creatore di mondi",
+      "set": "Core Set 1"
+    },
+    {
+      "id": "mrteo-sguardo-sole-rare",
+      "name": "MrTeo — Sguardo al Sole",
+      "emoji": "🧣",
+      "element": "earth",
+      "basePower": 6,
+      "rarity": "RARE",
+      "flavor": "Tendo a rimirare il vasto sole, non importa se mi acceco.",
+      "imageUrl": "https://drive.google.com/uc?id=1y2ZTvOGs5DtyVJwU3pTlu3a5p8A4up4Q",
+      "artist": "Creatore di mondi",
+      "set": "Core Set 1"
+    },
+    {
+      "id": "mrteo-sguardo-sole-epic",
+      "name": "MrTeo — Sguardo al Sole",
+      "emoji": "🧣",
+      "element": "earth",
+      "basePower": 8,
+      "rarity": "EPIC",
+      "flavor": "Tendo a rimirare il vasto sole, non importa se mi acceco.",
+      "imageUrl": "https://drive.google.com/uc?id=1y2ZTvOGs5DtyVJwU3pTlu3a5p8A4up4Q",
+      "artist": "Creatore di mondi",
+      "set": "Core Set 1"
+    },
+    {
+      "id": "mrteo-sguardo-sole-legendary",
+      "name": "MrTeo — Sguardo al Sole",
+      "emoji": "🧣",
+      "element": "earth",
+      "basePower": 10,
+      "rarity": "LEGENDARY",
+      "flavor": "Tendo a rimirare il vasto sole, non importa se mi acceco.",
+      "imageUrl": "https://drive.google.com/uc?id=1y2ZTvOGs5DtyVJwU3pTlu3a5p8A4up4Q",
+      "artist": "Creatore di mondi",
+      "set": "Core Set 1"
+    }
+  ];
+  
+  // Utility functions
+  const $ = s => document.querySelector(s);
+  const $$ = s => document.querySelectorAll(s);
+  
+  // Routing
+  function route() {
+    const hash = location.hash.replace('#', '') || 'home';
+    $$('.page').forEach(p => p.classList.remove('active'));
+    $('#' + hash)?.classList.add('active');
+  }
+  
+  window.addEventListener('hashchange', route);
+  route();
+  
+  // Home preview
+  $('#homePreview').innerHTML = cards.slice(0, 4).map(c => 
+    `<div class="card-mini" style="background:url('${c.imageUrl}') center/cover" title="${c.name}" onclick="openViewer('${c.id}')"></div>`
+  ).join('');
+  
+  // Catalog
+  function renderCatalog() {
+    const q = $('#q').value.toLowerCase();
+    const r = $('#fRarity').value;
+    const e = $('#fElement').value;
+    
+    const filtered = cards.filter(c => 
+      (!q || c.name.toLowerCase().includes(q) || c.id.includes(q)) &&
+      (!r || c.rarity === r) &&
+      (!e || c.element === e)
+    );
+    
+    $('#catalogGrid').innerHTML = filtered.map(c => 
+      `<div class="card-mini" style="background:url('${c.imageUrl}') center/cover" title="${c.name} - ${c.rarity}" onclick="openViewer('${c.id}')"></div>`
+    ).join('');
+    
+    $('#emptyState').hidden = !!filtered.length;
+  }
+  
+  $('#q').oninput = renderCatalog;
+  $('#fRarity').oninput = renderCatalog;
+  $('#fElement').oninput = renderCatalog;
+  renderCatalog();
+  
+  // Viewer
+  function openViewer(id) {
+    const card = cards.find(x => x.id === id);
+    $('#vImg').src = card.imageUrl;
+    $('#vTitle').textContent = `${card.name} (${card.rarity})`;
+    viewer.showModal();
+  }
+  
+  window.openViewer = openViewer;
+  
+  // Generator
+  const refs = {
+    name: $('#gName'),
+    rarity: $('#gRarity'),
+    el: $('#gElement'),
+    pow: $('#gPower'),
+    img: $('#gImg'),
+    flav: $('#gFlavor')
+  };
+  
+  const outs = {
+    root: $('#card'),
+    name: $('#tName'),
+    rarity: $('#tRarity'),
+    el: $('#tEl'),
+    pow: $('#tPower'),
+    flav: $('#tFlavor'),
+    img: $('#tImg')
+  };
+  
+  const EMO = { earth: '🪨', fire: '🔥', water: '💧' };
+  
+  function apply() {
+    outs.name.textContent = refs.name.value;
+    outs.rarity.textContent = refs.rarity.value;
+    outs.pow.textContent = refs.pow.value || 1;
+    outs.flav.textContent = refs.flav.value;
+    outs.root.className = 'card rar-' + refs.rarity.value;
+    outs.el.textContent = EMO[refs.el.value] || '🪨';
+    
+    if (refs.img.value) {
+      outs.img.src = refs.img.value;
+      outs.img.style.display = 'block';
+    } else {
+      outs.img.removeAttribute('src');
+      outs.img.style.display = 'none';
+    }
+  }
+  
+  Object.values(refs).forEach(i => i.oninput = apply);
+  apply();
+  
+  // Export PNG
+  $('#btnExport').onclick = async () => {
+    const card = $('#card');
+    const canvas = await html2canvas(card, { backgroundColor: null, scale: 2 });
+    const a = document.createElement('a');
+    a.href = canvas.toDataURL('image/png');
+    const safeName = refs.name.value.replace(/[^\w\-]+/g, '_');
+    a.download = `${safeName}_${refs.rarity.value}.png`;
+    a.click();
+  };
+  </script>
 </body>
 </html>
