@@ -1,0 +1,250 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MrTeo Card Layout</title>
+  <style>
+    :root{
+      --w: 750px;            /* dimensione finale per export */
+      --h: 1050px;
+      --radius: 28px;
+      --border: 10px;
+      --pad: 22px;
+
+      /* palette base (overriden da rarità) */
+      --frame: #444;
+      --frame-2: #2c2c2c;
+      --panel: #ded6c8;
+      --text: #1b1b1b;
+      --label: #ffffff;
+      --accent: #6e6e6e;
+    }
+
+    /* Temi rarità — cambiano cornice e accenti */
+    .rar-COMMON { --frame:#575757; --frame-2:#2f2f2f; --accent:#8b8b8b; }
+    .rar-RARE   { --frame:#6a2bbf; --frame-2:#421d7a; --accent:#b08cff; }
+    .rar-EPIC   { --frame:#1460ff; --frame-2:#0f3cb3; --accent:#78a7ff; }
+    .rar-LEGENDARY { --frame:#c79a24; --frame-2:#7b5e0f; --accent:#ffd46a; }
+
+    body{
+      margin:0; background:#0d0f13; color:var(--text);
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial;
+      display:grid; place-items:center; min-height:100dvh; padding:20px;
+    }
+    .wrap{
+      display:flex; flex-direction:column; gap:18px; align-items:center;
+    }
+    .toolbar{
+      display:flex; flex-wrap:wrap; gap:10px; justify-content:center;
+    }
+    .toolbar input, .toolbar select, .toolbar button, .toolbar textarea{
+      font:inherit; padding:10px 12px; border-radius:12px; border:1px solid #333; background:#16181d; color:#e8e8e8;
+    }
+    .toolbar textarea{ width:420px; height:70px; }
+
+    /* CARD */
+    .card{
+      width:var(--w); height:var(--h); position:relative;
+      background:linear-gradient(180deg, var(--frame) 0%, var(--frame-2) 100%);
+      border-radius: calc(var(--radius) + var(--border));
+      padding: var(--border);
+      box-shadow: 0 24px 60px rgba(0,0,0,.45), inset 0 0 0 1px rgba(255,255,255,.06);
+    }
+    .card-inner{
+      background:#1b1f27;
+      border-radius: var(--radius);
+      position:relative; width:100%; height:100%;
+      padding: var(--pad);
+      box-sizing:border-box;
+      box-shadow: inset 0 0 0 2px rgba(255,255,255,.04);
+    }
+
+    /* Header */
+    .header{
+      background: var(--panel);
+      border-radius: 18px;
+      padding: 14px 22px;
+      display:flex; align-items:center; justify-content:space-between;
+      box-shadow: inset 0 0 0 2px rgba(0,0,0,.15);
+    }
+    .title{
+      font-weight:800; font-size:34px; letter-spacing:.2px;
+    }
+    .badge{
+      background: var(--accent);
+      color: #111;
+      border-radius: 14px;
+      padding: 6px 14px; font-weight:900; font-size:18px;
+      text-transform:uppercase;
+    }
+
+    /* Artwork */
+    .art{
+      margin-top: 16px; background:#c6dbe6; border-radius: 22px; flex:1;
+      height: 62%; display:grid; place-items:center; position:relative;
+      overflow:hidden; box-shadow: inset 0 0 0 2px rgba(0,0,0,.18);
+    }
+    .art img{
+      max-width:92%; max-height:92%; object-fit:contain; filter: none;
+    }
+    .sun{
+      position:absolute; width:70%; aspect-ratio:1/1; border-radius:50%;
+      background: radial-gradient(closest-side, rgba(255,185,90,.95), rgba(255,185,90,.35) 60%, rgba(255,185,90,0) 75%);
+      z-index:0; mix-blend-mode:screen; filter: blur(0.4px);
+    }
+    /* atmosfera extra per rarità */
+    .rar-RARE .art{ background:#cfd5ff; }
+    .rar-EPIC .art{ background:#2b1f4b; }
+    .rar-LEGENDARY .art{ background:#2b250e; }
+    .rar-EPIC .sun{ background:radial-gradient(closest-side, rgba(255,102,76,.95), rgba(255,102,76,.35) 60%, rgba(255,102,76,0) 75%); }
+    .rar-LEGENDARY .sun{ background:radial-gradient(closest-side, rgba(255,214,94,.98), rgba(255,214,94,.42) 60%, rgba(255,214,94,0) 75%); }
+
+    /* Footer/panel testo */
+    .panel{
+      position:absolute; left:var(--pad); right:var(--pad); bottom:var(--pad);
+      display:grid; grid-template-columns: 1fr 80px; gap:14px; align-items:stretch;
+    }
+    .flavor{
+      background: var(--panel); border-radius: 16px; padding: 16px 18px;
+      font-size: 26px; line-height:1.25; box-shadow: inset 0 0 0 2px rgba(0,0,0,.15);
+    }
+    .power{
+      background: var(--panel); border-radius: 16px; display:grid; place-items:center;
+      font-weight:900; font-size:44px; box-shadow: inset 0 0 0 2px rgba(0,0,0,.15);
+    }
+
+    /* Element icon (angolo basso sinistra) */
+    .element{
+      position:absolute; left: var(--pad); bottom: calc(190px);
+      background: #2b2f38; color:#eaeaea; border-radius: 50%;
+      width:86px; height:86px; display:grid; place-items:center;
+      box-shadow: 0 8px 20px rgba(0,0,0,.35), inset 0 0 0 2px rgba(255,255,255,.06);
+      font-size:36px;
+    }
+
+    /* Anteprima su fondo */
+    .credit{ color:#aab; font-size:12px; opacity:.85; text-align:center}
+    .link{ color:#cfe; text-decoration:underline; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="toolbar">
+      <input id="name" placeholder="Nome carta" value="MrTeo — Sguardo al Sole" />
+      <select id="rarity">
+        <option>COMMON</option>
+        <option selected>RARE</option>
+        <option>EPIC</option>
+        <option>LEGENDARY</option>
+      </select>
+      <select id="element">
+        <option value="earth" selected>Terra</option>
+        <option value="fire">Fuoco</option>
+        <option value="water">Acqua</option>
+      </select>
+      <input id="power" type="number" value="6" min="1" max="15" />
+      <input id="img" placeholder="URL immagine" size="36" />
+      <textarea id="flavor">Tendo a rimirare il vasto sole, non importa se mi acceco.</textarea>
+      <button id="exportBtn">Esporta PNG</button>
+    </div>
+
+    <!-- Card -->
+    <div id="card" class="card rar-RARE" data-size="750x1050" aria-label="card-root">
+      <div class="card-inner">
+        <div class="header">
+          <div class="title" id="t-name">MrTeo — Sguardo al Sole</div>
+          <div class="badge" id="t-rarity">RARE</div>
+        </div>
+
+        <div class="art" id="art">
+          <div class="sun"></div>
+          <img id="art-img" alt="artwork" />
+        </div>
+
+        <div class="element" id="el-ico" title="Elemento">🪨</div>
+
+        <div class="panel">
+          <div class="flavor" id="t-flavor">Tendo a rimirare il vasto sole, non importa se mi acceco.</div>
+          <div class="power" id="t-power">6</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="credit">Suggerimento: compila i campi e clicca “Esporta PNG”. Puoi passare i parametri anche via query es.
+      <span class="link">?name=MrTeo&rarity=LEGENDARY&power=10&element=earth&img=https://.../img.png</span>
+    </div>
+  </div>
+
+  <!-- html2canvas per export -->
+  <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" integrity="sha256-u4iGJjv6H4y3b5lQnQe3WmX9Tnq1S9QGvNf3y7T0E7E=" crossorigin="anonymous"></script>
+  <script>
+    const qs = (s)=>document.querySelector(s);
+    const byId = (id)=>document.getElementById(id);
+
+    const inputs = {
+      name: byId('name'),
+      rarity: byId('rarity'),
+      element: byId('element'),
+      power: byId('power'),
+      img: byId('img'),
+      flavor: byId('flavor')
+    };
+
+    const views = {
+      root: byId('card'),
+      name: byId('t-name'),
+      rarity: byId('t-rarity'),
+      power: byId('t-power'),
+      flavor: byId('t-flavor'),
+      artImg: byId('art-img'),
+      elIco: byId('el-ico')
+    };
+
+    const elementEmoji = { earth: '🪨', fire:'🔥', water:'💧' };
+
+    function apply(){
+      views.name.textContent = inputs.name.value;
+      views.rarity.textContent = inputs.rarity.value;
+      views.power.textContent = String(inputs.power.value || 1);
+      views.flavor.textContent = inputs.flavor.value;
+      views.root.className = 'card rar-' + inputs.rarity.value;
+
+      const el = inputs.element.value;
+      views.elIco.textContent = elementEmoji[el] || '🪨';
+
+      const url = inputs.img.value.trim();
+      if(url){ views.artImg.src = url; views.artImg.style.display='block'; }
+      else { views.artImg.removeAttribute('src'); views.artImg.style.display='none'; }
+    }
+
+    // export PNG
+    async function exportPNG(){
+      const node = byId('card');
+      const canvas = await html2canvas(node, {backgroundColor:null, scale:2});
+      const png = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      const safe = inputs.name.value.replace(/[^\w\-]+/g,'_');
+      a.href = png;
+      a.download = `${safe}-${inputs.rarity.value}.png`;
+      a.click();
+    }
+
+    // leggi query param
+    function fromQuery(){
+      const p = new URLSearchParams(location.search);
+      for (const k of Object.keys(inputs)){
+        if (p.has(k)) inputs[k].value = p.get(k);
+      }
+      apply();
+    }
+
+    // bind
+    Object.values(inputs).forEach(el => el.addEventListener('input', apply));
+    byId('exportBtn').addEventListener('click', exportPNG);
+
+    fromQuery(); // inizializza da query
+    apply();     // e applica
+  </script>
+</body>
+</html>
